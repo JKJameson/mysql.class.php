@@ -47,6 +47,23 @@ foreach (db::q('SELECT * FROM `table_name`') as $row) {
 $row = db::q('SELECT * FROM `table_name` LIMIT 1')[0];
 echo "SELECT a single row: Found row with ID {$row['id']} and the value is {$row['column_a']} \n<br>";
 
+/*
+  SELECT multiple rows (with safe variables)
+*/
+$search_a = 'value 1';
+$search_b = 'value 2';
+foreach (db::q('SELECT * FROM `table_name` WHERE `column_a` = ? AND `column_b` = ?', $search_a, $search_b) as $row) {
+  echo "SELECT multiple rows: Found row with ID {$row['id']} and the value is {$row['column_a']} \n<br>";
+}
+
+/*
+  SELECT a single row  (with safe variables)
+*/
+$search_a = 'value 1';
+$search_b = 'value 2';
+$row = db::q('SELECT * FROM `table_name` WHERE `column_a` = ? AND `column_b` = ? LIMIT 1', $search_a, $search_b)[0];
+echo "SELECT a single row: Found row with ID {$row['id']} and the value is {$row['column_a']} \n<br>";
+
 
 
 ```
