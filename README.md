@@ -21,8 +21,7 @@ $db_info = [
   Connect to Database
 */
 $conn = db::connect($db_info['host'], $db_info['user'], $db_info['pass'], $db_info['name']);
-if ($conn!==true)
-  die('Database connection error: '.$conn);	
+if ($conn!==true) die('Database connection error: '.$conn);	
 unset($db_info); // Prevent leaking database credentials
 
 /*
