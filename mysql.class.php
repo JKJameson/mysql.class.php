@@ -18,6 +18,7 @@ class db {
 		} catch (PDOException $e) {
 			$return .= str_replace(self::$pass, '********', $e->getMessage());
 		}
+		unset($GLOBALS['db_info']); // Prevent leaking database credentials
 		return $return;
 	}
 
