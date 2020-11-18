@@ -3,35 +3,15 @@ class db {
 	static public $db;
 	static public $queries = 0;
 
-	static private $host;
-	static private $user;
-	static private $pass;
-	static private $database;
-	static function connect($host, $user, $pass, $database) {
-		self::$host = $host;
-		self::$user = $user;
-		self::$pass = $pass;
-		self::$database = $database;
-		$return = true;
-		try {
-			self::$db = new PDO("mysql:host=$host;dbname=$database;charset=utf8mb4", $user, $pass, array(PDO::ATTR_EMULATE_PREPARES => false, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
-		} catch (PDOException $e) {
-			$return .= str_replace(self::$pass, '********', $e->getMessage());
-		}
-		return $return;
+	static function connect($file) {
+		self::$db = new \PDO('sqlite:'.$file, '', '', array(
+		    \PDO::ATTR_EMULATE_PREPARES => false,
+		    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+		    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+		));
+		if (!self::$db)
+			die('Failed to init database');
 	}
-
-	// The ping() will try to reconnect once if connection lost.
-    static function ping() {
-        try {
-            @self::$db->query('SELECT 1');
-        } catch (PDOException $e) {
-            if (!self::$connect(self::$host, self::$user, self::$pass, self::$database)) {
-            	die('Connection to MySQL database lost');
-			}
-        }
-        return true;
-    }
 
 	static function insert($table, $params) {
 		self::$queries++;
