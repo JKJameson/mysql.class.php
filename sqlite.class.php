@@ -47,8 +47,8 @@ class db {
 		self::$queries++;
 		$args = func_get_args();
 		$sql = array_shift($args);
-		if ($this->nextFetchSingle) {
-			$this->nextFetchSingle = false;
+		if (self::$nextFetchSingle) {
+			self::$nextFetchSingle = false;
 			$func = 'fetch';
 		} else {
 			$func = 'fetchAll';
@@ -80,22 +80,22 @@ class db {
 
 	static function q1() {
 		$args = func_get_args();
-		$this->nextFetchSingle = true;
-		return call_user_func_array([$this, 'q'], $args);
+		self::$nextFetchSingle = true;
+		return call_user_func_array(['db', 'q'], $args);
 	}
 
 	static function count() {
 		$args = func_get_args();
 		$table = array_shift($args);
 		$WHEREquery = array_shift($args);
-		$WHEREargs = $argsl
+		$WHEREargs = $args;
 
 		$args = ['SELECT COUNT(*) FROM `'.$table.'`'];
 		if ($WHEREquery!=='') {
 			$args[0] .= ' WHERE '.$WHEREquery;
 			$args = array_merge($args, $WHEREargs);
 		}
-		$row = call_user_func_array([$this, 'q1'], $args);
+		$row = call_user_func_array(['db', 'q1'], $args);
 		return (int)$row['COUNT(*)'];
 	}
 }
