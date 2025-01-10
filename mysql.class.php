@@ -2,6 +2,7 @@
 class db {
 	static public $db;
 	static public $queries = 0;
+	static public $nextFetchSingle = false;
 
 	static private $host;
 	static private $user;
@@ -66,10 +67,16 @@ class db {
 		self::$queries++;
 		$args = func_get_args();
 		$sql = array_shift($args);
+		if ($this->nextFetchSingle) {
+			$this->nextFetchSingle = false;
+			$func = 'fetch';
+		} else {
+			$func = 'fetchAll';
+		}
 		if (count($args)==0) {
 			try {
 				$stmt = self::$db->query($sql);
-				$return = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$return = $stmt->$func(PDO::FETCH_ASSOC);
 			} catch (PDOException $e) {
 				fatal_error('SQL Error: '.$e->getMessage());
 			}
@@ -83,11 +90,17 @@ class db {
 			try {
 				$stmt = self::$db->prepare($sql);
 				$stmt->execute($args);
-				$return = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$return = $stmt->$func(PDO::FETCH_ASSOC);
 			} catch (PDOException $e) {
 				fatal_error('SQL Error: '.$e->getMessage());
 			}
 			return $return;
 		}
+	}
+
+	static function q1() {
+		$args = func_get_args();
+		$this->nextFetchSingle = true;
+		return call_user_func_array([$this, 'q'], $args);
 	}
 }

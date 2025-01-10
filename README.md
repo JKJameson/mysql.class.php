@@ -42,9 +42,9 @@ foreach (db::q('SELECT * FROM `table_name`') as $row) {
 }
 
 /*
-  SELECT a single row
+  SELECT a single row (this is signified as a 1 after the q)
 */
-$row = db::q('SELECT * FROM `table_name` LIMIT 1')[0];
+$row = db::q1('SELECT * FROM `table_name` LIMIT 1');
 echo "SELECT a single row: Found row with ID {$row['id']} and the value is {$row['column_a']} \n<br>";
 
 /*
