@@ -83,4 +83,19 @@ class db {
 		$this->nextFetchSingle = true;
 		return call_user_func_array([$this, 'q'], $args);
 	}
+
+	static function count() {
+		$args = func_get_args();
+		$table = array_shift($args);
+		$WHEREquery = array_shift($args);
+		$WHEREargs = $argsl
+
+		$args = ['SELECT COUNT(*) FROM `'.$table.'`'];
+		if ($WHEREquery!=='') {
+			$args[0] .= ' WHERE '.$WHEREquery;
+			$args = array_merge($args, $WHEREargs);
+		}
+		$row = call_user_func_array([$this, 'q1'], $args);
+		return (int)$row['COUNT(*)'];
+	}
 }

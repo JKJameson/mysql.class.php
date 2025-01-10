@@ -61,9 +61,21 @@ foreach (db::q('SELECT * FROM `table_name` WHERE `column_a` = ? AND `column_b` =
 */
 $search_a = 'value 1';
 $search_b = 'value 2';
-$row = db::q('SELECT * FROM `table_name` WHERE `column_a` = ? AND `column_b` = ? LIMIT 1', $search_a, $search_b)[0];
+$row = db::q1('SELECT * FROM `table_name` WHERE `column_a` = ? AND `column_b` = ? LIMIT 1', $search_a, $search_b);
 echo "SELECT a single row: Found row with ID {$row['id']} and the value is {$row['column_a']} \n<br>";
 
+/*
+  COUNT rows
+*/
+$count = db::count('users', " `level` = 'admin' AND `active` = 1 ");
+echo "Found $count rows \n<br>";
 
+/*
+  COUNT rows  (with safe variables)
+*/
+$search_a = 'value 1';
+$search_b = 'value 2';
+$count = db::count('table_name', ' `column_a` = ? AND  `column_b` = ? ', $search_a, $search_b);
+echo "Found $count rows \n<br>";
 
 ```
