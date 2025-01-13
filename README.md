@@ -18,10 +18,9 @@ $db_info = [
 ];
 
 /*
-  Connect to Database
+  Auth to Database (MySQL)
 */
-$conn = db::connect($db_info['host'], $db_info['user'], $db_info['pass'], $db_info['name']);
-if ($conn!==true) die('Database connection error: '.$conn);	
+db::auth($db_info['host'], $db_info['user'], $db_info['pass'], $db_info['name']);
 unset($db_info); // Prevent leaking database credentials
 
 /*

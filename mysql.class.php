@@ -1,6 +1,7 @@
 <?php
 class db {
 	static public $db;
+	static public $connected = false;
 	static public $queries = 0;
 	static public $nextFetchSingle = false;
 
@@ -8,14 +9,18 @@ class db {
 	static private $user;
 	static private $pass;
 	static private $database;
-	static function connect($host, $user, $pass, $database) {
+	static function auth($host, $user, $pass, $database) {
 		self::$host = $host;
 		self::$user = $user;
 		self::$pass = $pass;
 		self::$database = $database;
+	}
+
+	static function connect() {
 		$return = true;
 		try {
-			self::$db = new PDO("mysql:host=$host;dbname=$database;charset=utf8mb4", $user, $pass, array(PDO::ATTR_EMULATE_PREPARES => false, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+			self::$db = new PDO("mysql:host=".self::$host.";dbname=".self::$database.";charset=utf8mb4", self::$user, self::$pass, array(PDO::ATTR_EMULATE_PREPARES => false, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
+			self::$connected = true;
 		} catch (PDOException $e) {
 			$return .= str_replace(self::$pass, '********', $e->getMessage());
 		}
@@ -27,17 +32,16 @@ class db {
         try {
             @self::$db->query('SELECT 1');
         } catch (PDOException $e) {
-            if (!self::$connect(self::$host, self::$user, self::$pass, self::$database)) {
-            	die('Connection to MySQL database lost');
-			}
+            if (!self::$connect()) err('Connection to MySQL database lost');
         }
         return true;
     }
 
 	static function insert($table, $params) {
 		self::$queries++;
+		if (!self::$connected) self::connect() or err('Failed to connect to database');
 		if (!is_array($params)) {
-			fatal_error('insert(): $params must be an params of keys + values');
+			err('insert(): $params must be an params of keys + values');
 		}
 
 		$sql = 'INSERT INTO `'.$table.'` (';
@@ -65,6 +69,7 @@ class db {
 
 	static function q() {
 		self::$queries++;
+		if (!self::$connected) self::connect() or err('Failed to connect to database');
 		$args = func_get_args();
 		$sql = array_shift($args);
 		if (self::$nextFetchSingle) {
@@ -78,7 +83,7 @@ class db {
 				$stmt = self::$db->query($sql);
 				$return = $stmt->$func(PDO::FETCH_ASSOC);
 			} catch (PDOException $e) {
-				fatal_error('SQL Error: '.$e->getMessage());
+				err('SQL Error: '.$e->getMessage());
 			}
 			return $return;
 		} else {
@@ -92,7 +97,7 @@ class db {
 				$stmt->execute($args);
 				$return = $stmt->$func(PDO::FETCH_ASSOC);
 			} catch (PDOException $e) {
-				fatal_error('SQL Error: '.$e->getMessage());
+				err('SQL Error: '.$e->getMessage());
 			}
 			return $return;
 		}
